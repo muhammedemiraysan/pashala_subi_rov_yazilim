@@ -39,14 +39,14 @@ Serial.println(incomingByte);
 if (incomingByte == 49){
   servo_hiz = 170;
   servo_yon = 1;
-  servo1_hiz = 170;
+  servo1_hiz = 0;
   servo1_yon = 1;
   servo2_hiz = 170;
   servo2_yon = 1;
   servo3_hiz = 170;
   servo3_yon = 1;  
-  servo4_hiz = 170;
-  servo4_yon = 1;
+  servo4_hiz = 0;
+  servo4_yon = -1;
   servo5_hiz = 170;
   servo5_yon = 1;
   
