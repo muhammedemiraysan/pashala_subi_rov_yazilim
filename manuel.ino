@@ -66,6 +66,21 @@ if (incomingByte == 50){
   servo5_yon = 1;
   digitalWrite(13,LOW);
   }
+if (incomingByte == 51){
+  servo_hiz = 0;
+  servo_yon = 1;
+  servo1_hiz = 0;
+  servo1_yon = 1;
+  servo2_hiz = 0;
+  servo2_yon = 1;
+  servo3_hiz = 0;
+  servo3_yon = 1;  
+  servo4_hiz = 0;
+  servo4_yon = 1;
+  servo5_hiz = 0;
+  servo5_yon = 1;
+  digitalWrite(13,LOW);
+  }
 servo.writeMicroseconds(1470  + (servo_hiz  * servo_yon));
 servo1.writeMicroseconds(1470 + (servo1_hiz  * servo1_yon));
 servo2.writeMicroseconds(1470 + (servo2_hiz  * servo2_yon));
