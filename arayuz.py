@@ -141,17 +141,18 @@ class MainWindow(QWidget):
         elif event.key() == Qt.Key_D:
             print("D")
             self.arduino.write(b'4')
-        elif event.key() == Qt.Key_Q:
+        elif event.key() == Qt.Key_4:
             print("Q")
             self.arduino.write(b'5')
-        elif event.key() == Qt.Key_E:
+        elif event.key() == Qt.Key_5:
             print("E")
             self.arduino.write(b'6')
     def CancelFeed(self):
         exit()
     def baglan(self, Dialog):
         try:
-            self.arduino = serial.Serial(port=str(self.port_secim_ComboBox.currentText()),baudrate = int(self.Baudrate_ComboBox.currentText()))
+            #self.arduino = serial.Serial(port=str(self.port_secim_ComboBox.currentText()),baudrate = int(self.Baudrate_ComboBox.currentText()))
+            self.arduino = serial.Serial(port="COM10",baudrate = int(self.Baudrate_ComboBox.currentText()))
             self.baglan_label.setHidden(True)
             self.baglan_label2.setHidden(False)
             self.baglan_label3.setHidden(True)
@@ -165,7 +166,7 @@ class Worker1(QThread):
     ImageUpdate = pyqtSignal(QImage)
     def run(self):
         self.ThreadActive = True
-        Capture = cv2.VideoCapture(0)
+        Capture = cv2.VideoCapture(1)
         while self.ThreadActive:
             ret, frame = Capture.read()
             if ret:
