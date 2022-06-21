@@ -12,7 +12,7 @@ int servo3_yon = 1;
 int servo4_yon = 1;
 int servo5_yon = 1;
 int incomingByte = 0;
-byte servoPin = 3; byte servoPin1 = 5; byte servoPin2 = 6; byte servoPin3 = 9; byte servoPin4 = 10; byte servoPin5 = 11;
+byte servoPin = 10; byte servoPin1 = 5; byte servoPin2 = 6; byte servoPin3 = 9; byte servoPin4 = 3; byte servoPin5 = 11;
 Servo servo; Servo servo1; Servo servo2; Servo servo3; Servo servo4; Servo servo5;
 
 void setup() {
@@ -37,17 +37,13 @@ Serial.println(incomingByte);
 
 }
 if (incomingByte == 49){
-  servo_hiz = 170;
+  servo_hiz = 250;
   servo_yon = 1;
-  servo1_hiz = 0;
-  servo1_yon = 1;
-  servo2_hiz = 170;
-  servo2_yon = 1;
-  servo3_hiz = 170;
-  servo3_yon = 1;  
-  servo4_hiz = 0;
-  servo4_yon = -1;
-  servo5_hiz = 170;
+  servo2_hiz = 275;
+  servo2_yon = -1;
+  servo3_hiz = 150;
+  servo3_yon = -1;  
+  servo5_hiz = 275;
   servo5_yon = 1;
   
   digitalWrite(13,HIGH);}
@@ -63,29 +59,47 @@ if (incomingByte == 50){
   servo4_hiz = 0;
   servo4_yon = 1;
   servo5_hiz = 0;
-  servo5_yon = 1;
+  servo5_yon = -1;
   digitalWrite(13,LOW);
   }
 if (incomingByte == 51){
-  servo_hiz = 0;
-  servo_yon = 1;
-  servo1_hiz = 0;
-  servo1_yon = 1;
-  servo2_hiz = 0;
+  servo_hiz = 170;
+  servo_yon = -1;
+  servo2_hiz = 170;
   servo2_yon = 1;
-  servo3_hiz = 0;
-  servo3_yon = 1;  
-  servo4_hiz = 0;
-  servo4_yon = 1;
-  servo5_hiz = 0;
+  servo3_hiz = 170;
+  servo3_yon = -1;  
+  servo5_hiz = 170;
   servo5_yon = 1;
   digitalWrite(13,LOW);
+  }
+if (incomingByte == 52){
+  servo_hiz = 170;
+  servo_yon = 1;
+  servo2_hiz = 170;
+  servo2_yon = -1;
+  servo3_hiz = 170;
+  servo3_yon = 1;  
+  servo5_hiz = 170;
+  servo5_yon = -1;
+  }
+if (incomingByte == 53){
+  servo1_hiz = 170;
+  servo1_yon = -1;
+  servo4_hiz = 170;
+  servo4_yon = 1;
+  }
+if (incomingByte == 54){
+  servo1_hiz = 220;
+  servo1_yon = 1; 
+  servo4_hiz = 170;
+  servo4_yon = -1;
   }
 servo.writeMicroseconds(1470  + (servo_hiz  * servo_yon));
 servo1.writeMicroseconds(1470 + (servo1_hiz  * servo1_yon));
 servo2.writeMicroseconds(1470 + (servo2_hiz  * servo2_yon));
 servo3.writeMicroseconds(1470 + (servo3_hiz  * servo3_yon));
 servo4.writeMicroseconds(1470 + (servo4_hiz  * servo4_yon));
-servo5.writeMicroseconds(1470 + (servo2_hiz  * servo2_yon));
+servo5.writeMicroseconds(1470 + (servo5_hiz  * servo5_yon));
 
 }
