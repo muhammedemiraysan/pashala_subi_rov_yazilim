@@ -5,11 +5,12 @@ from PyQt5.QtCore import *
 import cv2
 import serial
 from PyQt5 import QtCore, QtGui, QtWidgets
+import numpy as np
 class MainWindow(QWidget):
-
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.setWindowIcon(QtGui.QIcon('Koala.jpg'))
+        self.otonom = 1
+
         self.timer = QTimer(self)
         self.timer.setSingleShot(False)
         self.timer.setInterval(10) # in milliseconds, so 5000 = 5 seconds
@@ -95,7 +96,7 @@ class MainWindow(QWidget):
         self.retranslateUi(self)
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Araç Kontrol Arayüzü"))
+        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.port_secim_label.setText(_translate("Dialog", "Port/"))
         self.Baudrate_label.setText(_translate("Dialog", "BaudRate/"))
         self.Baudrate_ComboBox.setCurrentText(_translate("Dialog", "9600"))
@@ -125,7 +126,7 @@ class MainWindow(QWidget):
         self.port_secim_ComboBox.setItemText(14, _translate("Dialog", "COM15"))
         self.baglan_buton.setText(_translate("Dialog", "Bağlan"))
         
-        
+    
     def ImageUpdateSlot(self, Image):
         self.FeedLabel.setPixmap(QPixmap.fromImage(Image))
     def keyPressEvent(self, event):
@@ -137,25 +138,25 @@ class MainWindow(QWidget):
             self.arduino.write(b'2')
         elif event.key() == Qt.Key_A:
             print("A")
-            self.arduino.write(b'4')
+            self.arduino.write(b'3')
         elif event.key() == Qt.Key_D:
             print("D")
-            self.arduino.write(b'3')
-        elif event.key() == Qt.Key_4:
-            print("Q")
+            self.arduino.write(b'4')
+        elif event.key() == Qt.Key_Q:
+            print("5")
             self.arduino.write(b'5')
-        elif event.key() == Qt.Key_5:
-            print("E")
+        elif event.key() == Qt.Key_E:
+            print("6")
             self.arduino.write(b'6')
-        elif event.key() == Qt.Key_6:
-            print("E")
-            self.arduino.write(b'7')
+        elif event.key() == Qt.Key_O:
+            self.otonom = True
+        elif event.key() == Qt.key_P:
+            self.otonom = False
     def CancelFeed(self):
         exit()
     def baglan(self, Dialog):
         try:
-            #self.arduino = serial.Serial(port=str(self.port_secim_ComboBox.currentText()),baudrate = int(self.Baudrate_ComboBox.currentText()))
-            self.arduino = serial.Serial(port="COM12",baudrate = int(self.Baudrate_ComboBox.currentText()))
+            self.arduino = serial.Serial(port=str(self.port_secim_ComboBox.currentText()),baudrate = int(self.Baudrate_ComboBox.currentText()))
             self.baglan_label.setHidden(True)
             self.baglan_label2.setHidden(False)
             self.baglan_label3.setHidden(True)
@@ -164,17 +165,37 @@ class MainWindow(QWidget):
             self.baglan_label2.setHidden(True)
             self.baglan_label3.setHidden(False)
     def loop(self):
-        pass
+        if self.otonom == True:
+            cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+            _, frame = cap.read()
+            hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+            lowb = np.array([50,50,50])
+            lowy = np.array([40, 50, 50]) 
+            highb = np.array([130,255,255])
+
+            maskb = cv2.inRange(hsv,lowb,highb)
+            image = cv2.cvtColor(maskb, cv2.COLOR_BGR2RGB)
+            gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            _, binary = cv2.threshold(gray, 225, 255, cv2.THRESH_BINARY_INV)
+            contours, hierarchy = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            image = cv2.drawContours(image, contours, -1, (0, 255, 0), 2)
+            cv2.imshow("contours",image)
+        else:
+            cv2.destroyAllWindows()
 class Worker1(QThread):
+    def __init__(self):
+        super(Worker1,self).__init__()
+    def on_change(self,data):
+        self.otonom = data
     ImageUpdate = pyqtSignal(QImage)
     def run(self):
         self.ThreadActive = True
-        Capture = cv2.VideoCapture(0)
+        Capture = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         while self.ThreadActive:
             ret, frame = Capture.read()
             if ret:
-                Image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                FlippedImage = cv2.flip(Image, 1)
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                FlippedImage = cv2.flip(frame, 1)
                 ConvertToQtFormat = QImage(FlippedImage.data, FlippedImage.shape[1], FlippedImage.shape[0], QImage.Format_RGB888)
                 Pic = ConvertToQtFormat.scaled(700, 700, Qt.KeepAspectRatio)
                 self.ImageUpdate.emit(Pic)
