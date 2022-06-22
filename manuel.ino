@@ -63,37 +63,47 @@ if (incomingByte == 50){
   digitalWrite(13,LOW);
   }
 if (incomingByte == 51){
-  servo_hiz = 170;
+  servo_hiz = 100;
   servo_yon = -1;
-  servo2_hiz = 170;
+  servo2_hiz = 100;
   servo2_yon = 1;
-  servo3_hiz = 170;
+  servo3_hiz = 100;
   servo3_yon = -1;  
-  servo5_hiz = 170;
+  servo5_hiz = 100;
   servo5_yon = 1;
   digitalWrite(13,LOW);
   }
 if (incomingByte == 52){
-  servo_hiz = 170;
+  servo_hiz = 100;
   servo_yon = 1;
-  servo2_hiz = 170;
+  servo2_hiz = 100;
   servo2_yon = -1;
-  servo3_hiz = 170;
+  servo3_hiz = 100;
   servo3_yon = 1;  
-  servo5_hiz = 170;
+  servo5_hiz = 100;
   servo5_yon = -1;
   }
 if (incomingByte == 53){
-  servo1_hiz = 170;
+  servo1_hiz = 400;
   servo1_yon = -1;
-  servo4_hiz = 170;
+  servo4_hiz = 400;
   servo4_yon = 1;
   }
 if (incomingByte == 54){
-  servo1_hiz = 220;
+  servo1_hiz = 400;
   servo1_yon = 1; 
-  servo4_hiz = 170;
+  servo4_hiz = 400;
   servo4_yon = -1;
+  }
+if (incomingByte == 55){
+    servo_hiz = 250;
+  servo_yon = -1;
+  servo2_hiz = 275;
+  servo2_yon = 1;
+  servo3_hiz = 150;
+  servo3_yon = 1;  
+  servo5_hiz = 275;
+  servo5_yon = -1;
   }
 servo.writeMicroseconds(1470  + (servo_hiz  * servo_yon));
 servo1.writeMicroseconds(1470 + (servo1_hiz  * servo1_yon));
