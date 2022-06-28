@@ -145,18 +145,24 @@ class MainWindow(QWidget):
         elif event.key() == Qt.Key_Q:
             print("5")
             self.arduino.write(b'5')
-        elif event.key() == Qt.Key_E:
+        elif event.key() == Qt.Key_6:
             print("6")
             self.arduino.write(b'6')
-        elif event.key() == Qt.Key_O:
-            self.otonom = True
-        elif event.key() == Qt.key_P:
-            self.otonom = False
+        elif event.key() == Qt.Key_7:
+            print("7")
+            self.arduino.write(b'7')
+        elif event.key() == Qt.Key_8:
+            print("8")
+            self.arduino.write(b'8')
+        elif event.key() == Qt.Key_9:
+            print("9")
+            self.arduino.write(b'9')
+    
     def CancelFeed(self):
         exit()
     def baglan(self, Dialog):
         try:
-            self.arduino = serial.Serial(port=str(self.port_secim_ComboBox.currentText()),baudrate = int(self.Baudrate_ComboBox.currentText()))
+            self.arduino = serial.Serial(port="COM22",baudrate = int(self.Baudrate_ComboBox.currentText()))
             self.baglan_label.setHidden(True)
             self.baglan_label2.setHidden(False)
             self.baglan_label3.setHidden(True)
@@ -165,23 +171,7 @@ class MainWindow(QWidget):
             self.baglan_label2.setHidden(True)
             self.baglan_label3.setHidden(False)
     def loop(self):
-        if self.otonom == True:
-            cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
-            _, frame = cap.read()
-            hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-            lowb = np.array([50,50,50])
-            lowy = np.array([40, 50, 50]) 
-            highb = np.array([130,255,255])
-
-            maskb = cv2.inRange(hsv,lowb,highb)
-            image = cv2.cvtColor(maskb, cv2.COLOR_BGR2RGB)
-            gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-            _, binary = cv2.threshold(gray, 225, 255, cv2.THRESH_BINARY_INV)
-            contours, hierarchy = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            image = cv2.drawContours(image, contours, -1, (0, 255, 0), 2)
-            cv2.imshow("contours",image)
-        else:
-            cv2.destroyAllWindows()
+        pass
 class Worker1(QThread):
     def __init__(self):
         super(Worker1,self).__init__()
@@ -190,7 +180,7 @@ class Worker1(QThread):
     ImageUpdate = pyqtSignal(QImage)
     def run(self):
         self.ThreadActive = True
-        Capture = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+        Capture = cv2.VideoCapture(1)
         while self.ThreadActive:
             ret, frame = Capture.read()
             if ret:
