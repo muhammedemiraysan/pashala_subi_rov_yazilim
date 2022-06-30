@@ -10,10 +10,10 @@ class MainWindow(QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.otonom = 1
-
+        self.kumanda_arduino = serial.Serial(port="COM9",baudrate = 9600)
         self.timer = QTimer(self)
         self.timer.setSingleShot(False)
-        self.timer.setInterval(10) # in milliseconds, so 5000 = 5 seconds
+        self.timer.setInterval(300) # in milliseconds, so 5000 = 5 seconds
         self.timer.timeout.connect(self.loop)
         self.timer.start()
         self.resize(1000, 700)
@@ -157,21 +157,28 @@ class MainWindow(QWidget):
         elif event.key() == Qt.Key_9:
             print("9")
             self.arduino.write(b'9')
-    
+        elif event.key() == Qt.Key_V:
+            print("8")
+            self.arduino.write(b'a')
+        elif event.key() == Qt.Key_B:
+            print("9")
+            self.arduino.write(b'b')
     def CancelFeed(self):
         exit()
     def baglan(self, Dialog):
         try:
-            self.arduino = serial.Serial(port="COM22",baudrate = int(self.Baudrate_ComboBox.currentText()))
+            self.arduino = serial.Serial(port="COM22",baudrate = 9600)
             self.baglan_label.setHidden(True)
             self.baglan_label2.setHidden(False)
             self.baglan_label3.setHidden(True)
         except:
             self.baglan_label.setHidden(True)
             self.baglan_label2.setHidden(True)
+
             self.baglan_label3.setHidden(False)
     def loop(self):
-        pass
+        self.x = self.kumanda_arduino.readline()
+        print(self.x)
 class Worker1(QThread):
     def __init__(self):
         super(Worker1,self).__init__()
