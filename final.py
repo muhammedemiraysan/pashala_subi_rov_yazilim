@@ -1,6 +1,5 @@
 def nothing(x):
     pass 
-from hashlib import shake_128
 import cv2
 import numpy as np
 import serial
@@ -11,16 +10,16 @@ import pygame
 pygame.init()
 width, height = 20, 20
 screen = pygame.display.set_mode((width, height))
-board = pyfirmata.Arduino('COM25')
+board = pyfirmata.Arduino('COM7')
 print("Communication Successfully started")
-servo1 = board.get_pin('d:6:s')
-servo2 = board.get_pin('d:3:s')
-servo3 = board.get_pin('d:5:s')
-servo4 = board.get_pin('d:10:s')
-servo5 = board.get_pin('d:9:s')
+servo1 = board.get_pin('d:5:s') #5
+servo2 = board.get_pin('d:10:s')
+servo3 = board.get_pin('d:9:s') #gecikmeli
+servo4 = board.get_pin('d:3:s') #3
+servo5 = board.get_pin('d:8:s') #6
 servo6 = board.get_pin('d:7:s')
-servo7 = board.get_pin('d:11:s')
-kamera_servo = board.get_pin('d:8:s')
+servo7 = board.get_pin('d:6:s')
+kamera_servo = board.get_pin('d:11:s')
 servo1a = 0
 servo1b = 0
 servo2c = 0
@@ -32,7 +31,11 @@ servo5c = 0
 servo6a = 0
 servo6b = 0
 servo7a = 0
-cap = cv2.VideoCapture(1)
+height = 720
+width = 360
+konum = 0
+otonom = False
+cap = cv2.VideoCapture(0)
 img = np.zeros((300,500,3), np.uint8)
 cv2.namedWindow('image')
 cv2.createTrackbar('low_b','image',0,255,nothing)
@@ -43,7 +46,7 @@ cv2.createTrackbar('high_g','image',0,255,nothing)
 cv2.createTrackbar('high_r','image',0,255,nothing)
 cv2.createTrackbar('erosion','image',0,10,nothing)
 cv2.createTrackbar('dilation','image',0,10,nothing)
-cv2.createTrackbar('kamera_servo','image',0,180,nothing)
+cv2.createTrackbar('kamera_servo','image',60,180,nothing)
 cv2.createTrackbar('ana_motor_hiz','image',0,100,nothing)
 cv2.createTrackbar('r','image',0,100,nothing)
 servo1.write(1470)
@@ -53,20 +56,20 @@ servo4.write(1470)
 servo5.write(1470)
 servo6.write(1470)
 servo7.write(1470)
-kamera_servo.write(1470)
-cv2.setTrackbarPos('low_b','image',30)
-cv2.setTrackbarPos('low_g','image',150)
+kamera_servo.write(90)
+cv2.setTrackbarPos('low_b','image',0)
+cv2.setTrackbarPos('low_g','image',50)
 cv2.setTrackbarPos('low_r','image',50)
-    
-cv2.setTrackbarPos('high_b','image',255)
-cv2.setTrackbarPos('high_g','image',255)
-cv2.setTrackbarPos('high_r','image',180)
+cv2.setTrackbarPos('high_b','image',13)
+cv2.setTrackbarPos('high_g','image',250)
+cv2.setTrackbarPos('high_r','image',250)
 cv2.setTrackbarPos('erosion','image',8)
 cv2.setTrackbarPos('ana_motor_hiz','image',50)
 cv2.setTrackbarPos('kamera_servo','image',90)
 cv2.setTrackbarPos('r','image',0)
 time.sleep(7)
 while cap.isOpened():
+#while(0):
     ret,image = cap.read()
     h1 = cv2.getTrackbarPos('low_b',"image")
     h2 = cv2.getTrackbarPos('low_g',"image")
@@ -82,7 +85,8 @@ while cap.isOpened():
     #motor7_hiz = (cv2.getTrackbarPos('motor7_hiz','image') )
     #ust_motor_hiza= (cv2.getTrackbarPos('ust_motor_hiza','image') )
     #motor7_hiza = (cv2.getTrackbarPos('motor7_hiza','image') )
-    kameraa = cv2.getTrackbarPos('kamera_servo','image')
+    if otonom == False:
+        kameraa = cv2.getTrackbarPos('kamera_servo','image')
     #servo2c = ust_motor_hiz 
     #servo5c = ust_motor_hiz 
     #servo7a = motor7_hiz + motor7_hiza
@@ -225,7 +229,6 @@ while cap.isOpened():
 
                     #cv2.circle(frameForUser,((i[0],i[1])),(i[2]),(0,255,0),2)
                     #cv2.circle(frameForUser,((i[0],i[1])),2,(0,0,255),3)
-
     cv2.imshow("color detection",frame)
     cv2.imshow("whiteblack",mask)
     #cv2.imshow("houghcircle", frameForHC)
@@ -238,64 +241,91 @@ while cap.isOpened():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
-        if event.type == pygame.KEYUP:
-            servo1a = 0
-            servo3a = 0 
-            servo4a = 0
-            servo6a = 0
-            servo1b = 0
-            servo3b = 0 
-            servo4b = 0
-            servo6b = 0
+        if otonom == False:
+            if event.type == pygame.KEYUP:
+                servo1a = 0
+                servo3a = 0 
+                servo4a = 0
+                servo6a = 0
+                servo1b = 0
+                servo3b = 0 
+                servo4b = 0
+                servo6b = 0
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        servo1a = 300
-        servo3a = 300
-        servo4a = 300
-        servo6a = 300
-        if keys[pygame.K_a]:
+    if otonom == False:
+        if keys[pygame.K_w]:
+            servo1a = 300
+            servo3a = 300
+            servo4a = 300
+            servo6a = 300
+            if keys[pygame.K_a]:
+                servo1b = 300
+                servo3b = -300
+                servo4b = -300
+                servo6b = -300
+            if keys[pygame.K_d]:
+                servo1b = -300
+                servo3b = 300
+                servo4b = 300
+                servo6b = 300
+        elif keys[pygame.K_a]:
             servo1b = 300
             servo3b = -300
             servo4b = -300
-
             servo6b = -300
-        if keys[pygame.K_d]:
+        elif keys[pygame.K_d]:
             servo1b = -300
             servo3b = 300
             servo4b = 300
             servo6b = 300
-    elif keys[pygame.K_a]:
-        servo1b = 300
-        servo3b = -300
-        servo4b = -300
-        servo6b = -300
-    elif keys[pygame.K_d]:
-        servo1b = -300
-        servo3b = 300
-        servo4b = 300
-        servo6b = 300
-    elif keys[pygame.K_s]:
-        servo1a = -300
-        servo3a = -300 
-        servo4a = -300
-        servo6a = -300
-    elif keys[pygame.K_q]:
-        servo2c = 400
-        servo5c = 400
-    elif keys[pygame.K_e]:
-        servo2c = -400
-        servo5c = -400
-    elif keys[pygame.K_r]:
-        servo2c = 0
-        servo5c = 0
-    elif keys[pygame.K_k]:
-        servo7a = 300
-    elif keys[pygame.K_l]:
-        servo7a = -300
-    elif keys[pygame.K_o]:
-        servo7a = 0
-    finalservo1 = 1470+((servo1a+servo1b)*(ana_hiz/100))
-    finalservo3 = 1470+(((-1*servo3a)+(servo3b))*ana_hiz/100)
+        elif keys[pygame.K_s]:
+            servo1a = -300
+            servo3a = -300 
+            servo4a = -300
+            servo6a = -300
+        elif keys[pygame.K_q]:
+            servo2c = -200
+            servo5c = -300
+        elif keys[pygame.K_e]:
+            servo2c = 200
+            servo5c = 300
+        elif keys[pygame.K_r]:
+            servo2c = 0
+            servo5c = 0
+        elif keys[pygame.K_k]:
+            servo7a = 300
+        elif keys[pygame.K_l]:
+            servo7a = -300
+        elif keys[pygame.K_o]:
+            servo7a = 0
+        elif keys[pygame.K_HOME]:
+            otonom = True
+    else:
+        if konum == 2:
+            servo1a = 300
+            servo3a = 300
+            servo4a = 300
+            servo6a = 300
+        if (konum == 5) or (konum == 8):
+            if kameraa == 60:
+                servo2c = 500
+                servo5c = 500
+            else:
+                kameraa += -1
+        if(konum == 1) or (konum == 4) or (konum == 7):
+            servo1b = 300
+            servo3b = -300
+            servo4b = -300
+            servo6b = -300
+        if(konum == 3) or (konum == 6) or (konum == 9):
+            servo1b = -300
+            servo3b = 300
+            servo4b = 300
+            servo6b = 300
+        if keys[pygame.K_END]:
+            otonom = False
+    finalservo1 = 1470+(-1*((servo1a+servo1b)*(ana_hiz/100)))
+    finalservo3 = 1470+(1*(((-1*servo3a)+(servo3b))*ana_hiz/100))
     finalservo4 = 1470+((servo4a+servo4b)*ana_hiz/100)
     finalservo6 = 1470+(((servo6a)+(servo6b))*ana_hiz/100)
     if finalservo1 > 1800:     
