@@ -1,5 +1,6 @@
 def nothing(x):
     pass 
+from curses import baudrate
 import cv2
 import numpy as np
 import serial
@@ -10,16 +11,17 @@ import pygame
 pygame.init()
 width, height = 20, 20
 screen = pygame.display.set_mode((width, height))
-board = pyfirmata.Arduino('COM7')
+board = pyfirmata.Arduino('COM33')
+ser = serial.Serial(port='COM26', baudrate = 9600, timeout=.1)
 print("Communication Successfully started")
-servo1 = board.get_pin('d:5:s') #5
-servo2 = board.get_pin('d:10:s')
-servo3 = board.get_pin('d:9:s') #gecikmeli
-servo4 = board.get_pin('d:3:s') #3
-servo5 = board.get_pin('d:8:s') #6
+servo1 = board.get_pin('d:2:s') #5
+servo2 = board.get_pin('d:3:s')
+servo3 = board.get_pin('d:4:s') #gecikmeli
+servo4 = board.get_pin('d:5:s') #3
+servo5 = board.get_pin('d:6:s') #6
 servo6 = board.get_pin('d:7:s')
-servo7 = board.get_pin('d:6:s')
-kamera_servo = board.get_pin('d:11:s')
+servo7 = board.get_pin('d:8:s')
+kamera_servo = board.get_pin('d:9:s')
 servo1a = 0
 servo1b = 0
 servo2c = 0
@@ -37,7 +39,7 @@ konum = 0
 otonom = False
 cap = cv2.VideoCapture(0)
 img = np.zeros((300,500,3), np.uint8)
-cv2.namedWindow('image')
+cv2.namedWindow('image',cv2.WINDOW_AUTOSIZE)
 cv2.createTrackbar('low_b','image',0,255,nothing)
 cv2.createTrackbar('low_g','image',0,255,nothing)
 cv2.createTrackbar('low_r','image',0,255,nothing)
@@ -140,21 +142,10 @@ while cap.isOpened():
 
     guassianblured = cv2.GaussianBlur(bilateralfiltered ,(5,5),0)
 
-    #canny = cv2.Canny(frameForHC,40,40)
-
     kernel = np.ones((5,5),np.float32)/25
 
-    #frameForHC = cv2.erode(canny, kernel, iterations=it1) 
-    #frameForHC = cv2.dilate(canny, kernel, iterations=2) 
-
-    #------------
-
-    mask = cv2.inRange(hsv, colorLower, colorUpper) 
+    mask = cv2.inRange(guassianblured, colorLower, colorUpper) 
      
-     #circles = cv2.HoughCircles(canny, cv2.HOUGH_GRADIENT, 1 ,150 ,param1=50,param2=30,minRadius=100,maxRadius=400) 
-     #circles = np.uint16(np.around(circles))
-
-     #kernel = np.ones((5,5),np.float32)/25
     mask = cv2.erode(mask, kernel, iterations=it1) 
     mask = cv2.dilate(mask, kernel, iterations=it2) 
 
@@ -210,34 +201,27 @@ while cap.isOpened():
                 print("9. konumda")
             print("x : ",int(cx) ," , ","y : ", int(cy), " , ", "çap : ",radius)
             cv2.line(frame,(int(x-(radius)), int(y)), (int(x+(radius)), int(y)), (0,0,255), 2)
-            #print(circles)
-
-            cv2.putText(frame, ".", (int(cx), int(cy)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,0), 3)
+            cv2.line(frameForUser,(int(x-(radius)), int(y)), (int(x+(radius)), int(y)), (0,0,255), 2)
+            cv2.putText(frameForUser,("cap", radius) , (int(x-(radius)+(30)), int(y(+10))), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,0), 4) 
             cv2.putText(frameForUser, ".", (int(cx), int(cy)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,0), 3)
-            
+            cv2.putText(frameForUser, (cx, cy), (int(10), int(40)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,0), 3)
+            cv2.putText(frameForUser, (gyrodata), (int(10), int(50)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,0), 3)
+            cv2.putText(frameForUser, (otonom), (int(10), int(80)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,0), 3)
+            cv2.putText()
             if radius > r: 
-                
-                cv2.circle(frame, (int(x), int(y)), int(radius),
-                (255, 255, 255), 3)
 
                 cv2.circle(frameForUser, (int(x), int(y)), int(radius),
                 (255, 255, 255), 3)  
                 
-                #for i in circles[0,:]:
-                    #cv2.circle(frameForHC,(i[0],i[1]),i[2],(0,255,0),2)
-                    #cv2.circle(frameForHC,(i[0],i[1]),2,(0,0,255),3)
-
-                    #cv2.circle(frameForUser,((i[0],i[1])),(i[2]),(0,255,0),2)
-                    #cv2.circle(frameForUser,((i[0],i[1])),2,(0,0,255),3)
-    cv2.imshow("color detection",frame)
+    #cv2.imshow("color detection",frame)
     cv2.imshow("whiteblack",mask)
-    #cv2.imshow("houghcircle", frameForHC)
     cv2.imshow("frameforuser",frameForUser)
 
     key = cv2.waitKey(1) & 0xFF
     if key == ord("ğ"):
         exit()
     screen.fill((20, 20, 20))
+    gyrodata = ser.readline()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
@@ -280,7 +264,7 @@ while cap.isOpened():
             servo6b = 300
         elif keys[pygame.K_s]:
             servo1a = -300
-            servo3a = -300 
+            servo3a = -300
             servo4a = -300
             servo6a = -300
         elif keys[pygame.K_q]:
@@ -289,6 +273,15 @@ while cap.isOpened():
         elif keys[pygame.K_e]:
             servo2c = 200
             servo5c = 300
+        elif keys[pygame.K_u]:
+            servo7a = gyrodata
+            cv2.putText(frameForUser,("cap", radius) , (int(10)), int(70)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,0), 4)
+        elif event.type == pygame.K_v:
+            anahiz = 100
+        elif event.type == pygame.K_b:
+            anahiz = 200
+        elif event.type == pygame.K_n:
+            anahiz = 300
         elif keys[pygame.K_r]:
             servo2c = 0
             servo5c = 0
@@ -301,29 +294,34 @@ while cap.isOpened():
         elif keys[pygame.K_HOME]:
             otonom = True
     else:
-        if konum == 2:
-            servo1a = 300
-            servo3a = 300
-            servo4a = 300
-            servo6a = 300
-        if (konum == 5) or (konum == 8):
-            if kameraa == 60:
-                servo2c = 500
-                servo5c = 500
-            else:
-                kameraa += -1
-        if(konum == 1) or (konum == 4) or (konum == 7):
-            servo1b = 300
-            servo3b = -300
-            servo4b = -300
-            servo6b = -300
-        if(konum == 3) or (konum == 6) or (konum == 9):
-            servo1b = -300
-            servo3b = 300
-            servo4b = 300
-            servo6b = 300
-        if keys[pygame.K_END]:
-            otonom = False
+        if cx != 0 and cy != 0 :
+            cv2.putText(frameForUser,"hedef tespit edildi" , (int(10), int(60)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,0), 4)        
+            if konum == 2:
+                servo1a = 300
+                servo3a = 300
+                servo4a = 300
+                servo6a = 300
+            if (konum == 5) or (konum == 8):
+                if kameraa == 60:
+                    servo2c = 500
+                    servo5c = 500
+                else:
+                    kameraa += -1
+            if(konum == 1) or (konum == 4) or (konum == 7):
+                servo1b = 300
+                servo3b = -300
+                servo4b = -300
+                servo6b = -300
+            if(konum == 3) or (konum == 6) or (konum == 9):
+                servo1b = -300
+                servo3b = 300
+                servo4b = 300
+                servo6b = 300
+            if keys[pygame.K_END]:
+                otonom = False
+        else:
+            pass
+
     finalservo1 = 1470+(-1*((servo1a+servo1b)*(ana_hiz/100)))
     finalservo3 = 1470+(1*(((-1*servo3a)+(servo3b))*ana_hiz/100))
     finalservo4 = 1470+((servo4a+servo4b)*ana_hiz/100)
